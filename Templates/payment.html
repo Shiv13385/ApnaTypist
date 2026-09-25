@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Payment & Order - Apna Typist</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #12141c;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #1a1d29 !important;
+            border-bottom: 1px solid #303646;
+        }
+
+        .navbar-brand {
+            color: #10b981 !important;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .nav-link {
+            color: #ffffff !important;
+            margin-left: 10px;
+        }
+
+        .nav-link:hover {
+            color: #10b981 !important;
+        }
+
+        .main-container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 15px;
+        }
+
+        .order-card {
+            background: #1a1d29;
+            border: 1px solid #303646;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .page-title {
+            color: #ffffff;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .page-description {
+            color: #c5cbd5;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* FORM LABELS */
+        .form-label {
+            color: #ffffff !important;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* INPUTS */
+        .form-control,
+        .form-select {
+            width: 100%;
+            background-color: #10131b !important;
+            color: #ffffff !important;
+
+            border: 1px solid #3b4254 !important;
+            border-radius: 8px;
+
+            padding: 12px 14px;
+
+            font-size: 16px;
+
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        /* INPUT PLACEHOLDER */
+        .form-control::placeholder {
+            color: #9ca3af !important;
+            opacity: 1 !important;
+            -webkit-text-fill-color: #9ca3af !important;
+        }
+
+        /* INPUT FOCUS */
+        .form-control:focus,
+        .form-select:focus {
+            background-color: #10131b !important;
+            color: #ffffff !important;
+
+            border-color: #10b981 !important;
+
+            outline: none !important;
+
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        /* SELECT OPTIONS */
+        .form-select option {
+            background: #1a1d29 !important;
+            color: #ffffff !important;
+        }
+
+        /* NUMBER INPUT */
+       /* Number input text fix */
+input[type="number"] {
+    background: #10131b !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+}
+
+input[type="number"]:focus {
+    background: #10131b !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Chrome autofill + number input */
+input[type="number"]:-webkit-autofill,
+input[type="number"]:-webkit-autofill:hover,
+input[type="number"]:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0 1000px #10131b inset !important;
+    box-shadow: 0 0 0 1000px #10131b inset !important;
+}
+
+        /* FILE INPUT */
+        input[type="file"] {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #059669;
+        }
+
+        /* AUTOFILL FIX - CHROME */
+       input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+
+    -webkit-text-fill-color: #ffffff !important;
+
+    -webkit-box-shadow:
+        0 0 0px 1000px #10131b inset !important;
+
+    box-shadow:
+        0 0 0px 1000px #10131b inset !important;
+
+    transition:
+        background-color 5000s ease-in-out 0s;
+
+    caret-color: #ffffff !important;
+}
+
+        /* PRICE BOX */
+        .price-box {
+            background: #10131b;
+            border: 1px solid #3b4254;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .price-label {
+            color: #c5cbd5;
+        }
+
+        .price-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .total-row {
+            border-top: 1px solid #3b4254;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .total-label {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .total-value {
+            color: #10b981;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* PAYMENT INFORMATION */
+        .payment-box {
+            background: #10131b;
+            border: 1px solid #3b4254;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+
+        .payment-box h4 {
+            color: #10b981;
+            margin-bottom: 15px;
+        }
+
+        .payment-box p {
+            color: #d1d5db;
+            margin-bottom: 8px;
+        }
+
+        .payment-note {
+            color: #fbbf24 !important;
+            font-size: 14px;
+        }
+
+        /* QR PLACEHOLDER */
+        .qr-box {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .qr-box img {
+            max-width: 220px;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            background: #ffffff;
+            padding: 10px;
+        }
+
+        /* BUTTON */
+        .btn-submit {
+            width: 100%;
+            background: #10b981;
+            border: none;
+            color: #ffffff;
+
+            font-size: 18px;
+            font-weight: bold;
+
+            padding: 13px;
+            border-radius: 8px;
+
+            margin-top: 15px;
+        }
+
+        .btn-submit:hover {
+            background: #059669;
+            color: #ffffff;
+        }
+
+        /* BACK BUTTON */
+        .btn-back {
+            display: block;
+            text-align: center;
+            color: #10b981;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .btn-back:hover {
+            color: #34d399;
+        }
+
+        /* HELP TEXT */
+        .form-text {
+            color: #9ca3af !important;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* ALERT */
+        .alert {
+            border-radius: 8px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+
+            .main-container {
+                margin-top: 20px;
+            }
+
+            .order-card {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 26px;
+            }
+        }
+    
+/* ===== APNA TYPIST FINAL FORM VISIBILITY FIX ===== */
+.form-group-custom,
+.mb-3 {
+    position: relative !important;
+}
+
+.form-label,
+label.form-label {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    padding: 7px 10px !important;
+    margin: 0 0 8px 0 !important;
+    border-radius: 5px !important;
+}
+
+.form-control,
+.form-select,
+input,
+textarea,
+select {
+    background: #10131b !important;
+    color: #fff !important;
+}
+
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: #555555 !important;
+    -webkit-text-fill-color: #555555 !important;
+    opacity: 1 !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 0.2rem rgba(16,185,129,.18) !important;
+}
+
+.form-text {
+    color: #FFFAA0 !important;
+}
+
+.qr-placeholder {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 30px !important;
+    text-align: center !important;
+    border-radius: 10px !important;
+    margin: 20px 0 !important;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+
+        <a class="navbar-brand" href="/">
+            Apna Typist
+        </a>
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarMenu"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMenu">
+
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        Home
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/track">
+                        Track Order
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+</nav>
+
+
+<!-- MAIN -->
+<div class="main-container">
+
+    <div class="order-card">
+
+        <h1 class="page-title">
+            Place Your Order
+        </h1>
+
+        <p class="page-description">
+            Enter your details, select your work type and upload your files.
+        </p>
+
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- ORDER FORM -->
+        <form
+            action="{{ url_for('upload') }}"
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+            <!-- NAME -->
+            <div class="mb-3">
+
+                <label for="name" class="form-label">
+                    Name
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your full name"
+                    required
+                >
+
+            </div>
+
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+
+                <label for="email" class="form-label">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email address"
+                    required
+                >
+
+            </div>
+
+
+            <!-- PHONE -->
+            <div class="mb-3">
+
+                <label for="phone" class="form-label">
+                    Contact Number
+                </label>
+
+                <input
+                    type="tel"
+                    class="form-control"
+                    id="phone"
+                    name="phone"
+                    placeholder="Enter your mobile number"
+                    required
+                >
+
+            </div>
+
+
+            <!-- WORK TYPE -->
+            <div class="mb-3">
+
+                <label for="work_type" class="form-label">
+                    Select Work Type
+                </label>
+
+                <select
+                    class="form-select"
+                    id="work_type"
+                    name="work_type"
+                    required
+                >
+
+                    <option value="">
+                        -- Select Work Type --
+                    </option>
+
+                    <option value="PDF to Word">
+                        PDF to Word - ₹10/page
+                    </option>
+
+                    <option value="Image to Word">
+                        Image to Word - ₹10/page
+                    </option>
+
+                    <option value="Hindi Image to Word">
+                        Hindi Image to Word - ₹15/page
+                    </option>
+
+                    <option value="PDF to Excel">
+                        PDF to Excel - ₹20/page
+                    </option>
+
+                    <option value="Manual Typing - English">
+                        Manual Typing - English - ₹15/page
+                    </option>
+
+                    <option value="Manual Typing - Hindi">
+                        Manual Typing - Hindi - ₹20/page
+                    </option>
+
+                    <option value="Data Entry">
+                        Data Entry - ₹20/page
+                    </option>
+
+                    <option value="Formatting & Proofreading">
+                        Formatting & Proofreading - ₹10/page
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- NUMBER OF PAGES -->
+            <div class="mb-3">
+
+                <label for="quantity" class="form-label">
+                    Number of Pages / Sheets
+                </label>
+
+                <input
+                    type="number"
+                    class="form-control"
+                    id="quantity"
+                    name="quantity"
+                    min="1"
+                    value="1"
+                    required
+                >
+
+                <div class="form-text">
+                    Enter the total number of pages or sheets.
+                </div>
+
+            </div>
+
+
+            <!-- FILE UPLOAD -->
+            <div class="mb-3">
+
+                <label for="files" class="form-label">
+                    Upload Files
+                </label>
+
+                <input
+                    type="file"
+                    class="form-control"
+                    id="files"
+                    name="documents"
+                    multiple
+                    required
+                >
+
+                <div class="form-text">
+                    You can select multiple files.
+                </div>
+
+            </div>
+
+
+            <!-- PRICE -->
+            <div class="price-box">
+
+                <div class="price-row">
+
+                    <span class="price-label">
+                        Rate:
+                    </span>
+
+                    <span
+                        class="price-value"
+                        id="rateDisplay"
+                    >
+                        ₹0 / page
+                    </span>
+
+                </div>
+
+
+                <div class="price-row">
+
+                    <span class="price-label">
+                        Quantity:
+                    </span>
+
+                    <span
+                        class="price-value"
+                        id="quantityDisplay"
+                    >
+                        1
+                    </span>
+
+                </div>
+
+
+                <div class="price-row total-row">
+
+                    <span class="total-label">
+                        Total Amount:
+                    </span>
+
+                    <span
+                        class="total-value"
+                        id="totalDisplay"
+                    >
+                        ₹0
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- PAYMENT INFORMATION -->
+            <div class="payment-box">
+
+                <h4>
+                    Payment Information
+                </h4>
+
+                <p>
+                    Please make the payment using the QR code provided below.
+                </p>
+
+                <p>
+                    After payment, enter the UTR / Transaction ID below.
+                </p>
+
+
+                <!-- QR CODE -->
+             <div style="
+    background:#ffffff;
+    color:#000000;
+    padding:30px;
+    text-align:center;
+    border-radius:10px;
+    margin:20px 0;
+">
+    <strong>QR Code will be added here</strong>
+</div>
+
+
+                <p class="payment-note">
+                    Note: Replace the QR image in
+                    static/images/qr.png
+                    with your own payment QR code.
+                </p>
+
+            </div>
+
+
+            <!-- PAYMENT REFERENCE -->
+            <div class="mb-3">
+
+                <label
+                    for="payment_reference"
+                    class="form-label"
+                >
+                    UTR / Transaction ID
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="payment_reference"
+                    name="payment_reference"
+                    placeholder="Enter UTR / Transaction ID"
+                    required
+                >
+
+                <div class="form-text">
+                    Enter the transaction number after making payment.
+                </div>
+
+            </div>
+
+
+            <!-- SUBMIT -->
+            <button
+                type="submit"
+                class="btn-submit"
+            >
+                Submit Order
+            </button>
+
+
+            <a
+                href="/"
+                class="btn-back"
+            >
+                ← Back to Home
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+        SERVICE RATES
+    */
+
+    const rates = {
+
+        "PDF to Word": 10,
+
+        "Image to Word": 10,
+
+        "Hindi Image to Word": 15,
+
+        "PDF to Excel": 20,
+
+        "Manual Typing - English": 15,
+
+        "Manual Typing - Hindi": 20,
+
+        "Data Entry": 20,
+
+        "Formatting & Proofreading": 10
+
+    };
+
+
+    const workType =
+        document.getElementById("work_type");
+
+    const quantity =
+        document.getElementById("quantity");
+
+    const rateDisplay =
+        document.getElementById("rateDisplay");
+
+    const quantityDisplay =
+        document.getElementById("quantityDisplay");
+
+    const totalDisplay =
+        document.getElementById("totalDisplay");
+
+
+    /*
+        UPDATE PRICE
+    */
+
+    function updatePrice() {
+
+        const selectedWork =
+            workType.value;
+
+        const qty =
+            parseInt(quantity.value) || 0;
+
+        const rate =
+            rates[selectedWork] || 0;
+
+        const total =
+            rate * qty;
+
+
+        /*
+            RATE
+        */
+
+        if (rate > 0) {
+
+            rateDisplay.innerText =
+                "₹" + rate + " / page";
+
+        } else {
+
+            rateDisplay.innerText =
+                "₹0 / page";
+
+        }
+
+
+        /*
+            QUANTITY
+        */
+
+        quantityDisplay.innerText =
+            qty;
+
+
+        /*
+            TOTAL
+        */
+
+        totalDisplay.innerText =
+            "₹" + total;
+
+    }
+
+
+    /*
+        WHEN WORK TYPE CHANGES
+    */
+
+    workType.addEventListener(
+        "change",
+        updatePrice
+    );
+
+
+    /*
+        WHEN QUANTITY CHANGES
+    */
+
+    quantity.addEventListener(
+        "input",
+        updatePrice
+    );
+
+
+    /*
+        INITIAL PRICE
+    */
+
+    updatePrice();
+
+</script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>

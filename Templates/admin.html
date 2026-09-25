@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Admin Panel – Apna Typist</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            background: #12141c;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            background: #1a1d29;
+            border: 1px solid #2b3040;
+            border-radius: 16px;
+        }
+
+        .form-control,
+        .form-select {
+            background: #10131b;
+            color: #fff;
+            border: 1px solid #3b4254;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: #10131b;
+            color: #fff;
+            border-color: #10b981;
+            box-shadow: 0 0 0 .2rem rgba(16, 185, 129, .15);
+        }
+
+        .btn-green {
+            background: #10b981;
+            color: #fff;
+            border: 0;
+        }
+
+        .btn-green:hover {
+            background: #0ea371;
+            color: #fff;
+        }
+
+        .muted {
+            color: #a8afbd;
+        }
+
+        .navbar {
+            background: #0d0f15 !important;
+        }
+
+        .table {
+            --bs-table-bg: #1a1d29;
+            --bs-table-color: #fff;
+        }
+
+        .table th {
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge-soft {
+            background: #263040;
+            color: #fff;
+        }
+
+        /* File button */
+        .file-btn {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 7px 11px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .file-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Delete button */
+        .delete-btn {
+            border: none;
+            background: #dc2626;
+            color: white;
+            padding: 7px 11px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 120px;
+        }
+
+        /* Files modal */
+        .files-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            inset: 0;
+            background: rgba(0, 0, 0, .78);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .files-modal-box {
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: #1a1d29;
+            border: 1px solid #343b4d;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .5);
+        }
+
+        .files-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .files-modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-close {
+            border: none;
+            background: #ef4444;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            background: #dc2626;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #242837;
+            border-radius: 8px;
+        }
+
+        .file-name {
+            word-break: break-word;
+            color: white;
+            font-size: 14px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .view-file-btn,
+        .download-file-btn {
+            text-decoration: none;
+            color: white;
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .view-file-btn {
+            background: #2563eb;
+        }
+
+        .view-file-btn:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .download-file-btn {
+            background: #10b981;
+        }
+
+        .download-file-btn:hover {
+            background: #0ea371;
+            color: white;
+        }
+
+        .no-files,
+        .error-files,
+        .loading-files {
+            text-align: center;
+            padding: 25px;
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+
+            .files-modal {
+                padding: 10px;
+            }
+
+            .files-modal-box {
+                padding: 15px;
+                max-height: 90vh;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .file-actions {
+                width: 100%;
+            }
+
+            .view-file-btn,
+            .download-file-btn {
+                flex: 1;
+                text-align: center;
+            }
+
+            .action-buttons {
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark">
+    <div class="container">
+
+        <a
+            class="navbar-brand fw-bold"
+            href="{{ url_for('home') }}"
+        >
+            Apna Typist
+        </a>
+
+        <div>
+            <a
+                class="btn btn-sm btn-outline-light me-2"
+                href="{{ url_for('payment') }}"
+            >
+                Place Order
+            </a>
+
+            <a
+                class="btn btn-sm btn-outline-light"
+                href="{{ url_for('track') }}"
+            >
+                Track Order
+            </a>
+        </div>
+
+    </div>
+</nav>
+
+
+<main class="container py-5">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% for cat, msg in messages %}
+
+            <div class="alert alert-{{ cat }}">
+                {{ msg }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1>Admin Panel</h1>
+
+        <a
+            class="btn btn-outline-light"
+            href="{{ url_for('admin_logout') }}"
+        >
+            Logout
+        </a>
+
+    </div>
+
+
+    <!-- ORDERS -->
+    <div class="card p-3 mb-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h4 class="mb-0">
+                Orders
+            </h4>
+
+            <span class="badge badge-soft">
+                Total: {{ orders|length }}
+            </span>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-dark table-bordered align-middle">
+
+                <thead>
+                    <tr>
+
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Service</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>UTR</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Files</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                {% for o in orders %}
+
+                    <tr>
+
+                        <!-- Order ID -->
+                        <td>
+                            <strong>
+                                {{ o['order_id'] }}
+                            </strong>
+                        </td>
+
+
+                        <!-- Customer -->
+                        <td>
+
+                            {{ o['name'] }}
+
+                            <br>
+
+                            <small class="text-info">
+                                {{ o['email'] }}
+                            </small>
+
+                            <br>
+
+                            <small>
+                                {{ o['phone'] }}
+                            </small>
+
+                        </td>
+
+
+                        <!-- Service -->
+                        <td>
+                            {{ o['work_type'] }}
+                        </td>
+
+
+                        <!-- Quantity -->
+                        <td>
+                            {{ o['quantity'] }}
+                        </td>
+
+
+                        <!-- Total -->
+                        <td>
+                            <strong class="text-success">
+                                ₹{{ o['total_amount'] }}
+                            </strong>
+                        </td>
+
+
+                        <!-- UTR -->
+                        <td>
+
+                            {% if o['payment_reference'] %}
+
+                                <span>
+                                    {{ o['payment_reference'] }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="muted">
+                                    -
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Payment Status -->
+                        <td>
+
+                            {% if o['payment_status'] == 'Verified' %}
+
+                                <span class="badge bg-success">
+                                    Verified
+                                </span>
+
+                            {% elif o['payment_status'] == 'Rejected' %}
+
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Pending Verification
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Order Status -->
+                        <td>
+
+                            {% if o['status'] == 'Completed' %}
+
+                                <span class="badge bg-success">
+                                    Completed
+                                </span>
+
+                            {% elif o['status'] == 'Rejected' or o['status'] == 'Cancelled' %}
+
+                                <span class="badge bg-danger">
+                                    {{ o['status'] }}
+                                </span>
+
+                            {% elif o['status'] == 'In Progress' %}
+
+                                <span class="badge bg-info text-dark">
+                                    In Progress
+                                </span>
+
+                            {% elif o['status'] == 'Approved' %}
+
+                                <span class="badge bg-primary">
+                                    Approved
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary">
+                                    Pending
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Deadline -->
+                        <td>
+                            {{ o['deadline'] or '-' }}
+                        </td>
+
+
+                        <!-- Files -->
+                        <td>
+
+                            <button
+                                type="button"
+                                class="file-btn"
+                                onclick="openFilesModal('{{ o['order_id'] }}')"
+                            >
+                                📂 Open Files
+                            </button>
+
+                        </td>
+
+
+                        <!-- Update -->
+                        <td>
+
+                            <form
+                                action="{{ url_for('update_order') }}"
+                                method="POST"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="order_id"
+                                    value="{{ o['order_id'] }}"
+                                >
+
+
+                                <!-- Payment Status -->
+                                <select
+                                    class="form-select form-select-sm mb-2"
+                                    name="payment_status"
+                                >
+
+                                    <option
+                                        {% if o['payment_status'] == 'Pending Verification' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Pending Verification
+                                    </option>
+
+                                    <option
+                                        {% if o['payment_status'] == 'Verified' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Verified
+                                    </option>
+
+                                    <option
+                                        {% if o['payment_status'] == 'Rejected' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Rejected
+                                    </option>
+
+                                </select>
+
+
+                                <!-- Order Status -->
+                                <select
+                                    class="form-select form-select-sm mb-2"
+                                    name="status"
+                                >
+
+                                    <option
+                                        {% if o['status'] == 'Pending' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Pending
+                                    </option>
+
+                                    <option
+                                        {% if o['status'] == 'Approved' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Approved
+                                    </option>
+
+                                    <option
+                                        {% if o['status'] == 'In Progress' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        In Progress
+                                    </option>
+
+                                    <option
+                                        {% if o['status'] == 'Completed' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Completed
+                                    </option>
+
+                                    <option
+                                        {% if o['status'] == 'Rejected' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Rejected
+                                    </option>
+
+                                    <option
+                                        {% if o['status'] == 'Cancelled' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Cancelled
+                                    </option>
+
+                                </select>
+
+
+                                <!-- Deadline -->
+                                <input
+                                    class="form-control form-control-sm mb-2"
+                                    name="deadline"
+                                    value="{{ o['deadline'] or '' }}"
+                                    placeholder="e.g. 2 Days"
+                                >
+
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-green btn-sm w-100"
+                                >
+                                    💾 Save
+                                </button>
+
+                            </form>
+
+                        </td>
+
+
+                        <!-- Delete Order -->
+                        <td>
+
+                            <form
+                                action="{{ url_for('delete_order') }}"
+                                method="POST"
+                                onsubmit="return confirm(
+                                    '⚠️ क्या आप इस पूरे Order को permanently delete करना चाहते हैं?\\n\\nOrder ID: {{ o['order_id'] }}\\n\\nDatabase record और uploaded files दोनों delete हो जाएंगे.'
+                                );"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="order_id"
+                                    value="{{ o['order_id'] }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="delete-btn"
+                                >
+                                    🗑️ Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="12"
+                            class="text-center muted"
+                        >
+                            No orders yet.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- CONTACT MESSAGES -->
+    <div class="card p-3">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h4 class="mb-0">
+                Contact Messages
+            </h4>
+
+            <span class="badge badge-soft">
+                Total: {{ contacts|length }}
+            </span>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-dark table-bordered align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Message</th>
+                        <th>Delete</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for c in contacts %}
+
+                    <tr>
+
+                        <td>
+                            {{ c['name'] }}
+                        </td>
+
+                        <td>
+                            {{ c['email'] }}
+                        </td>
+
+                        <td>
+                            {{ c['phone'] }}
+                        </td>
+
+                        <td style="min-width:250px; white-space:pre-wrap;">
+                            {{ c['message'] }}
+                        </td>
+
+                        <td>
+
+                            <form
+                                action="{{ url_for('delete_contact') }}"
+                                method="POST"
+                                onsubmit="return confirm(
+                                    'क्या आप इस contact message को permanently delete करना चाहते हैं?'
+                                );"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="contact_id"
+                                    value="{{ c['id'] }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="delete-btn"
+                                >
+                                    🗑️ Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="text-center muted"
+                        >
+                            No messages yet.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- FILES MODAL -->
+<div
+    id="filesModal"
+    class="files-modal"
+>
+
+    <div class="files-modal-box">
+
+        <div class="files-modal-header">
+
+            <h3>
+                📂 Order Files
+            </h3>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeFilesModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div id="filesModalContent">
+
+            <div class="loading-files">
+                Loading files...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function openFilesModal(orderId) {
+
+    const modal =
+        document.getElementById("filesModal");
+
+    const content =
+        document.getElementById("filesModalContent");
+
+
+    content.innerHTML =
+        `<div class="loading-files">
+            Loading files...
+        </div>`;
+
+
+    modal.style.display = "flex";
+
+
+    fetch(
+        "/admin/order-files-list/" +
+        encodeURIComponent(orderId)
+    )
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load files"
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        if (
+            !data.files ||
+            data.files.length === 0
+        ) {
+
+            content.innerHTML =
+                `<p class="no-files">
+                    No files found for this order.
+                </p>`;
+
+            return;
+        }
+
+
+        let html = "";
+
+
+        data.files.forEach(function(file) {
+
+            const fileUrl =
+                "/admin/order-files/" +
+                encodeURIComponent(orderId) +
+                "/" +
+                encodeURIComponent(file);
+
+
+            html += `
+
+                <div class="file-item">
+
+                    <div class="file-name">
+                        📄 ${escapeHtml(file)}
+                    </div>
+
+                    <div class="file-actions">
+
+                        <a
+                            href="${fileUrl}"
+                            target="_blank"
+                            class="view-file-btn"
+                        >
+                            👁️ View
+                        </a>
+
+                        <a
+                            href="${fileUrl}"
+                            class="download-file-btn"
+                        >
+                            📥 Download
+                        </a>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+
+        content.innerHTML = html;
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        content.innerHTML =
+            `<p class="error-files">
+                ❌ Unable to load files.
+            </p>`;
+
+    });
+
+}
+
+
+function closeFilesModal() {
+
+    document.getElementById(
+        "filesModal"
+    ).style.display = "none";
+
+}
+
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+
+window.addEventListener(
+    "click",
+    function(event) {
+
+        const modal =
+            document.getElementById("filesModal");
+
+        if (event.target === modal) {
+
+            closeFilesModal();
+
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+
+            closeFilesModal();
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+</html>

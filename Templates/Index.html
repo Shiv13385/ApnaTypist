@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+input[type="number"],
+input[type="number"]:focus,
+input[type="number"]:active {
+    background-color: #10131b !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+}
+
+/* Jab number field ka focus hat jaye */
+input[type="number"]:not(:focus) {
+    background-color: #10131b !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Selected text */
+input[type="number"]::selection {
+    background: #10b981 !important;
+    color: #ffffff !important;
+}
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Apna Typist — From Documents to Digital</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+
+        :root {
+            --bg-dark: #12141c;
+            --bg-card: #1a1d29;
+            --accent-green: #10b981;
+            --accent-hover: #059669;
+            --text-muted: #9ca3af;
+        }
+
+        /* BODY */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            padding-top: 85px;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            background-color: #12141c !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #ffffff !important;
+            text-decoration: none;
+        }
+
+        .brand-accent {
+            color: var(--accent-green);
+        }
+
+        .custom-nav-links {
+            display: flex !important;
+            flex-direction: row !important;
+            list-style: none !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        .custom-nav-links .nav-item {
+            margin-left: 20px;
+        }
+
+        .custom-nav-links .nav-link {
+            color: #e5e7eb !important;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .custom-nav-links .nav-link:hover {
+            color: var(--accent-green) !important;
+            background-color: rgba(16,185,129,0.1) !important;
+        }
+
+
+        /* =========================
+           SECTION TOGGLING
+        ========================= */
+
+        .app-section {
+            display: none;
+            padding: 60px 0;
+        }
+
+        #home-section {
+            display: block;
+        }
+
+        body:has(#upload-section:target) #home-section {
+            display: none;
+        }
+
+        body:has(#contact-section:target) #home-section {
+            display: none;
+        }
+
+        #upload-section:target {
+            display: block !important;
+        }
+
+        #contact-section:target {
+            display: block !important;
+        }
+
+
+        /* =========================
+           COMMON CAROUSEL
+        ========================= */
+
+        #imageCarousel {
+            width: 100%;
+            max-width: 1400px;
+            margin: 20px auto 0 auto;
+
+            background-color: #0b0d12;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .carousel-image {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+
+            object-fit: contain;
+            display: block;
+
+            margin: 0 auto;
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 8%;
+        }
+
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero-section {
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(16,185,129,0.08),
+                    transparent 45%
+                );
+
+            min-height: 60vh;
+
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .hero-accent {
+            background: linear-gradient(
+                135deg,
+                #10b981,
+                #34d399
+            );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+
+        /* =========================
+           CARD
+        ========================= */
+
+        .custom-card {
+            background-color: var(--bg-card);
+
+            border: 1px solid rgba(255,255,255,0.05);
+
+            border-radius: 24px;
+
+            padding: 40px;
+
+            box-shadow:
+                0 30px 60px rgba(0,0,0,0.4);
+
+            width: 100%;
+        }
+
+
+        /* =========================
+           SECTION TITLE
+        ========================= */
+
+        .section-title {
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .text-muted-custom {
+            color: var(--text-muted);
+        }
+
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form-group-custom {
+            display: flex;
+            flex-direction: column;
+
+            width: 100%;
+
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #d1d5db;
+
+            margin-bottom: 8px;
+
+            font-size: 0.9rem;
+
+            text-align: left;
+        }
+
+        .form-control {
+            background-color: rgba(255,255,255,0.03);
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            color: #ffffff;
+
+            border-radius: 12px;
+
+            padding: 14px 16px;
+
+            width: 100% !important;
+
+            box-sizing: border-box;
+
+            transition: all 0.3s ease;
+        }
+
+        .form-control::placeholder {
+            color: #8b93a1;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255,255,255,0.05);
+
+            border-color: var(--accent-green);
+
+            box-shadow:
+                0 0 0 4px rgba(16,185,129,0.15);
+
+            color: #ffffff;
+
+            outline: none;
+        }
+
+
+        /* =========================
+           NAME / EMAIL / CONTACT
+        ========================= */
+
+        .small-input {
+            width: 70% !important;
+        }
+
+
+        /* =========================
+           MESSAGE BOX
+        ========================= */
+
+        textarea.form-control.message-box {
+            width: 90% !important;
+
+            min-height: 180px !important;
+
+            resize: vertical;
+        }
+
+
+        /* =========================
+           FILE INPUT
+        ========================= */
+
+        input[type="file"] {
+            cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button {
+            background-color: rgba(16,185,129,0.1);
+
+            color: var(--accent-green);
+
+            border: none;
+
+            padding: 8px 14px;
+
+            border-radius: 6px;
+
+            font-weight: 600;
+
+            margin-right: 10px;
+        }
+
+
+        /* =========================
+           SELECTED FILES
+        ========================= */
+
+        #selectedFiles {
+            margin-top: 15px;
+        }
+
+        .selected-file {
+            background-color: rgba(255,255,255,0.04);
+
+            border: 1px solid rgba(255,255,255,0.08);
+
+            border-radius: 8px;
+
+            padding: 8px 12px;
+
+            margin-bottom: 6px;
+
+            color: #d1d5db;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .btn-custom {
+            background-color: var(--accent-green);
+
+            color: #12141c;
+
+            font-weight: 700;
+
+            padding: 14px;
+
+            border-radius: 12px;
+
+            border: none;
+
+            width: 50%;
+
+            transition: all 0.3s ease;
+
+            text-decoration: none;
+
+            display: inline-block;
+
+            text-align: center;
+        }
+
+        .btn-custom:hover {
+            background-color: var(--accent-hover);
+
+            color: #ffffff;
+
+            box-shadow:
+                0 8px 24px rgba(16,185,129,0.25);
+        }
+
+
+        /* =========================
+           MOBILE RESPONSIVE
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .custom-nav-links .nav-item {
+                margin-left: 4px;
+            }
+
+            .custom-nav-links .nav-link {
+                font-size: 0.75rem;
+
+                padding: 6px 7px !important;
+            }
+
+            .hero-title {
+                font-size: 2.3rem;
+            }
+
+            .custom-card {
+                padding: 25px;
+            }
+
+            .small-input,
+            textarea.form-control.message-box {
+                width: 100% !important;
+            }
+
+            #imageCarousel {
+                width: 100%;
+
+                margin-top: 10px;
+
+                border-radius: 12px;
+            }
+
+            .carousel-image {
+                width: 100%;
+
+                height: auto;
+
+                max-height: 300px;
+
+                object-fit: contain;
+            }
+
+            .btn-custom {
+                width: 100%;
+            }
+        }
+
+
+        /* =========================
+           HOME CONTENT FIX
+        ========================= */
+
+        .home-content-card {
+            max-width: 1100px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+
+        .home-content-card .hero-title {
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+
+        .home-content-card .lead {
+            line-height: 1.7;
+        }
+
+        .home-info-section {
+            width: 100%;
+            overflow: visible;
+        }
+
+        .home-info-section h2 {
+            color: #ffffff;
+            font-size: 1.7rem;
+            line-height: 1.4;
+            margin: 0 0 16px;
+        }
+
+        .home-info-section h3 {
+            color: #ffffff;
+            font-size: 1.05rem;
+            line-height: 1.5;
+            margin: 0 0 7px;
+        }
+
+        .home-info-section p,
+        .home-info-section li {
+            color: #d1d5db;
+            font-size: 1rem;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .home-info-section ul {
+            padding-left: 22px;
+            margin-bottom: 20px;
+        }
+
+        .service-check-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 30px;
+            margin: 20px 0;
+            color: #e5e7eb;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .delivery-line {
+            color: #ffffff !important;
+            margin: 18px 0 28px;
+        }
+
+        .service-info {
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+        }
+
+        .service-info strong {
+            color: var(--accent-green);
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .service-info p {
+            margin: 4px 0 0;
+        }
+
+        .how-step {
+            border-left: 3px solid var(--accent-green);
+            padding: 5px 0 5px 18px;
+            margin: 0 0 20px;
+        }
+
+        .how-step p {
+            margin: 3px 0;
+        }
+
+        .pricing-list {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .pricing-list div {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.035);
+            border-radius: 10px;
+            color: #e5e7eb;
+        }
+
+        .pricing-list strong {
+            color: var(--accent-green);
+            white-space: nowrap;
+        }
+
+        .home-content-card hr {
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.10);
+            margin: 32px 0;
+            opacity: 1;
+        }
+
+        .home-action {
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .home-content-card {
+                padding: 25px 18px;
+            }
+
+            .home-content-card .hero-title {
+                font-size: 2.15rem;
+            }
+
+            .service-check-list {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .home-info-section h2 {
+                font-size: 1.45rem;
+            }
+
+            .home-info-section p,
+            .home-info-section li {
+                font-size: 0.95rem;
+                line-height: 1.7;
+            }
+
+            .pricing-list div {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div style="background-color:brown; color:white; text-align:center; padding:8px 5px;">
+        <h1 style="font-size:clamp(1.2rem, 3vw, 2rem); margin:0;">
+           <marquee> 𝒜𝒫𝒩𝒜 &nbsp 𝒯𝒴𝒫𝐼𝒮𝒯 (𝒴𝑜𝓊𝓇 𝒯𝓇𝓊𝓈𝓉, 𝒪𝓊𝓇 𝑅𝑒𝓈𝓅𝑜𝓃𝓈𝒾𝒷𝒾𝓁𝒾𝓉𝓎) </marquee>
+        </h1>
+    </div>
+
+    <p style="text-align:center; padding:8px 10px; margin:0; color:#d1d5db;">
+        PDF → Word, &nbsp;&nbsp; Image → Word, &nbsp;&nbsp; Hindi & English Typing, &nbsp;&nbsp;
+        Excel Work, &nbsp;&nbsp; Power Point Presentation, &nbsp;&nbsp; Data Entry,
+        &nbsp;&nbsp; Formatting, &nbsp;&nbsp; Proofreading
+    </p>
+
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav class="navbar navbar-dark fixed-top">
+
+        <div class="container d-flex justify-content-between align-items-center">
+
+            <a class="navbar-brand" href="/">
+                Our First
+                <span class="brand-accent">
+                    Digital Typist work website
+                </span>
+            </a>
+
+            <ul class="custom-nav-links">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        
+                         🏠 Home
+
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#upload-section">
+                      📂 Upload
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact-section">
+                      📞  Contact Us
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/track">
+                      🔎 Track Order
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- =========================
+         COMMON IMAGE CAROUSEL
+         Home / Upload / Contact
+    ========================= -->
+
+    <div id="imageCarousel"
+         class="carousel slide"
+         data-bs-ride="carousel"
+         data-bs-interval="2500">
+
+        <div class="carousel-inner">
+
+
+            <!-- IMAGE 1 -->
+
+            <div class="carousel-item active">
+
+                <img
+                    src="{{ url_for('static', filename='images/img1.jpg') }}"
+                    class="d-block w-100 carousel-image"
+                    alt="Image 1">
+
+            </div>
+
+
+            <!-- IMAGE 2 -->
+
+            <div class="carousel-item">
+
+                <img
+                    src="{{ url_for('static', filename='images/img2.jpg') }}"
+                    class="d-block w-100 carousel-image"
+                    alt="Image 2">
+
+            </div>
+
+
+            <!-- IMAGE 3 -->
+
+            <div class="carousel-item">
+
+                <img
+                    src="{{ url_for('static', filename='images/img3.jpg') }}"
+                    class="d-block w-100 carousel-image"
+                    alt="Image 3">
+
+            </div>
+
+
+            <!-- IMAGE 4 -->
+
+            <div class="carousel-item">
+
+                <img
+                    src="{{ url_for('static', filename='images/img4.jpg') }}"
+                    class="d-block w-100 carousel-image"
+                    alt="Image 4">
+
+            </div>
+
+
+        </div>
+
+
+        <!-- PREVIOUS -->
+
+        <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#imageCarousel"
+            data-bs-slide="prev">
+
+            <span class="carousel-control-prev-icon"></span>
+
+            <span class="visually-hidden">
+                Previous
+            </span>
+
+        </button>
+
+
+        <!-- NEXT -->
+
+        <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#imageCarousel"
+            data-bs-slide="next">
+
+            <span class="carousel-control-next-icon"></span>
+
+            <span class="visually-hidden">
+                Next
+            </span>
+
+        </button>
+
+    </div>
+
+
+
+    <!-- =========================
+         HOME SECTION
+    ========================= -->
+
+    <div id="home-section" class="app-section">
+
+        <section class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-12">
+
+                        <div class="custom-card home-content-card">
+
+                            <h1 class="hero-title mb-3">
+                                Professional Typing &
+                                <span class="hero-accent">Data Entry Services</span>
+                            </h1>
+
+                            <p class="lead text-muted-custom mb-4">
+                                Convert Your Documents Quickly, Accurately &amp; Affordably
+                            </p>
+
+                            <div class="home-intro">
+                                <div class="service-check-list">
+                                    <div>✅ Hindi Typing</div>
+                                    <div>✅ English Typing</div>
+                                    <div>✅ PDF to Word Conversion</div>
+                                    <div>✅ Excel Data Entry</div>
+                                    <div>✅ Document Formatting</div>
+                                    <div>✅ Copy Paste Work</div>
+                                </div>
+
+                                <p class="delivery-line">
+                                    <strong>Fast Delivery | Affordable Rates | Quality Work</strong>
+                                </p>
+
+                                <h2>आपके दस्तावेज़ों को डिजिटल रूप देने की आसान सेवा</h2>
+                                <p>Simple, Reliable &amp; Professional Typing and Document Services</p>
+                            </div>
+
+                            <hr>
+
+                            <section class="home-info-section">
+                               
+                                <p>
+                                    अपने दस्तावेज़, PDF और इमेज फाइलों से जुड़ा काम आसानी से करवाएँ।
+                                    अपनी फाइल अपलोड करें, काम चुनें, भुगतान करें और अपना काम पूरा होने पर
+                                    ईमेल के माध्यम से प्राप्त करें।
+                                </p>
+
+                               rfglri
+                                <p>
+                                    Get your typing and document work done easily. Upload your files,
+                                    select the required service, make the payment, and receive your
+                                    completed work through email.
+                                </p>
+                            </section>
+
+                            <hr>
+
+                            <section class="home-info-section">
+                                <h2>📋 हमारी सेवाएँ | Our Services</h2>
+
+                                <div class="service-info">
+                                    <h3>⌨️ English Word Typing</h3>
+                                    <strong>₹15 प्रति पेज | ₹15 per page</strong>
+                                    <p>हाथ से लिखे हुए, PDF या इमेज दस्तावेज़ को साफ-सुथरे Word document में तैयार किया जाता है।</p>
+                                </div>
+
+                                <div class="service-info">
+                                    <h3>⌨️ Hindi Word Typing</h3>
+                                    <strong>₹20 प्रति पेज | ₹20 per page</strong>
+                                    <p>हिंदी दस्तावेज़, इमेज या PDF को Word format में टाइप किया जाता है।</p>
+                                </div>
+
+                                <div class="service-info">
+                                    <h3>📊 Excel Work</h3>
+                                    <strong>₹20 प्रति शीट/पेज | ₹20 per sheet/page</strong>
+                                    <p>Data entry, tables और अन्य Excel से संबंधित कार्य।</p>
+                                </div>
+
+                                <div class="service-info">
+                                    <h3>📄 PDF to Word Conversion</h3>
+                                    <strong>₹10 प्रति पेज | ₹10 per page</strong>
+                                    <p>PDF document को editable Word document में convert किया जाता है।</p>
+                                </div>
+
+                                <div class="service-info">
+                                    <h3>🔍 Proofreading</h3>
+                                    <strong>₹10 प्रति पेज | ₹10 per page</strong>
+                                    <p>दस्तावेज़ में spelling, typing और सामान्य language errors की proofreading की जाती है।</p>
+                                </div>
+                            </section>
+
+                            <hr>
+
+                            <section class="home-info-section">
+                                <h2>📝 काम कैसे करवाएँ? | How It Works</h2>
+
+                                <div class="how-step">
+                                    <h3>Step 1 — काम चुनें | Select Your Work</h3>
+                                    <p>अपनी आवश्यकता के अनुसार service चुनें।</p>
+                                    <p>Choose the service you need.</p>
+                                </div>
+
+                                <div class="how-step">
+                                    <h3>Step 2 — फाइल अपलोड करें | Upload Your Files</h3>
+                                    <p>अपनी PDF, Word, Image या अन्य संबंधित files upload करें।</p>
+                                    <p>Upload your PDF, Word, image or other required files.</p>
+                                </div>
+
+                                <div class="how-step">
+                                    <h3>Step 3 — Pages / Sheets डालें | Enter Quantity</h3>
+                                    <p>अपने काम के अनुसार pages या sheets की संख्या दर्ज करें।</p>
+                                    <p>Enter the number of pages or sheets required.</p>
+                                </div>
+
+                                <div class="how-step">
+                                    <h3>Step 4 — कीमत देखें | Check Your Amount</h3>
+                                    <p>वेबसाइट आपके द्वारा चुनी गई service और quantity के अनुसार कुल राशि अपने आप calculate करेगी।</p>
+                                    <p>The website automatically calculates the total amount based on your selected service and quantity.</p>
+                                </div>
+
+                                <div class="how-step">
+                                    <h3>Step 5 — भुगतान करें | Make Payment</h3>
+                                    <p>दिए गए QR Code को scan करके payment करें।</p>
+                                    <p>Scan the provided QR Code and make the payment.</p>
+                                </div>
+
+                                <div class="how-step">
+                                    <h3>Step 6 — Payment Reference डालें | Enter Payment Reference</h3>
+                                    <p>Payment करने के बाद अपना UTR / Transaction Reference Number दर्ज करें।</p>
+                                    <p>After payment, enter your UTR / transaction reference number.</p>
+                                </div>
+
+                                <div class="how-step">
+                                    <h3>Step 7 — Order Submit करें | Submit Your Order</h3>
+                                    <p>अपनी details check करके order submit करें।</p>
+                                    <p>Check your details and submit your order.</p>
+                                </div>
+
+                                <div class="how-step">
+                                    <h3>Step 8 — काम पूरा होने पर Email | Receive Your Work</h3>
+                                    <p>हम आपका काम पूरा करके आपकी दी गई email address पर completed file भेजेंगे।</p>
+                                    <p>Once your work is completed, the finished file will be sent to your provided email address.</p>
+                                </div>
+                            </section>
+
+                            <hr>
+
+                            <section class="home-info-section">
+                                <h2>💰 हमारी कीमतें | Our Pricing</h2>
+
+                                <div class="pricing-list">
+                                    <div><span>English Word Typing</span><strong>₹15 / Page</strong></div>
+                                    <div><span>Hindi Word Typing</span><strong>₹20 / Page</strong></div>
+                                    <div><span>Excel Work</span><strong>₹20 / Sheet/Page</strong></div>
+                                    <div><span>PDF to Word</span><strong>₹10 / Page</strong></div>
+                                    <div><span>Proofreading</span><strong>₹10 / Page</strong></div>
+                                </div>
+
+                                <p>कोई भी काम शुरू करने से पहले कुल राशि वेबसाइट पर दिखाई जाएगी।</p>
+                                <p>The total amount will be displayed on the website before you submit your order.</p>
+                            </section>
+
+                            <hr>
+
+                            <section class="home-info-section">
+                                <h2>📌 जरूरी जानकारी | Important Information</h2>
+
+                                <h3>Hindi:</h3>
+                                <ul>
+                                    <li>कृपया साफ और readable files upload करें।</li>
+                                    <li>सही नाम, email और phone number दर्ज करें।</li>
+                                    <li>Payment करने के बाद UTR/Transaction Reference Number जरूर दर्ज करें।</li>
+                                    <li>काम की समय-सीमा काम की मात्रा और complexity पर निर्भर हो सकती है।</li>
+                                    <li>Completed work आपकी दी गई email address पर भेजा जाएगा।</li>
+                                    <li>किसी समस्या के लिए Contact Us से संपर्क करें।</li>
+                                    <li>यदि हम दिया गया काम तय सीमा में पूरा नहीं कर सके, तो आपको ई-मेल पर सूचना दी जाएगी और यदि payment किया गया है तो payment वापस किया जाएगा।</li>
+                                </ul>
+
+                                <h3>English:</h3>
+                                <ul>
+                                    <li>Please upload clear and readable files.</li>
+                                    <li>Enter your correct name, email and phone number.</li>
+                                    <li>Always enter the UTR/Transaction Reference Number after payment.</li>
+                                    <li>Delivery time may depend on the size and complexity of the work.</li>
+                                    <li>Completed work will be sent to your provided email address.</li>
+                                    <li>For any assistance, please contact us.</li>
+                                    <li>If we are unable to complete the work within the agreed time limit, you will receive an email notification and, if payment was made, the payment will be returned.</li>
+                                </ul>
+                            </section>
+
+                            <div class="home-action text-center">
+                                <a href="#upload-section" class="btn btn-custom px-4 py-2">
+                                    For Upload Your Work Click Here
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+
+    <!-- =========================
+         UPLOAD MENU
+    ========================= -->
+
+    <div id="upload-section" class="app-section">
+
+        <section class="container">
+
+            <div class="row justify-content-center">
+
+                <div class="col-lg-7">
+
+
+                    <div class="text-center mb-5">
+
+                        <h2 class="section-title">
+                            Place Your Order / Upload Documents 
+
+                        </h2>
+
+                        <p class="text-muted-custom">
+
+                    <br>our Services</br>
+<br>
+1-	PDF to Word  </br> 
+<br>
+2-	Image to Word </br>
+<br>
+3-	Hindi Image to Word
+</br> <br>
+4-	PDF to Excel
+</br><br>
+5-	Manual Typing </br> <br>
+6-	Data Entry</br><br>
+7-	Formatting & Proofreading </br>
+
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="custom-card">
+
+
+                        <div class="text-center py-3">
+                                <p class="text-muted-custom mb-4">
+                                    Choose your service, enter page/sheet count, upload your files,
+                                    and submit payment details on the secure order page.
+                                </p>
+                                <a href="{{ url_for('payment') }}" class="btn btn-custom px-4 py-2">
+                                    Start Your Order &amp; Payment
+                                </a>
+                                <p class="text-muted-custom mt-3 mb-0">
+                                    English Manual Typing: ₹15/page &nbsp; | &nbsp; Hindi Manual Typing: ₹20/page
+                                </p>
+                            </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+
+    <!-- =========================
+         TRACK ORDER
+    ========================= -->
+
+    <div id="track-section" class="app-section">
+
+        <section class="container">
+
+            <div class="row justify-content-center">
+
+                <div class="col-lg-7">
+
+                    <div class="text-center mb-5">
+                        <h2 class="section-title">Track Your Order</h2>
+                        <p class="text-muted-custom">
+                            Enter your Order ID and Email to check your current order status.
+                        </p>
+                    </div>
+
+                    <div class="custom-card">
+
+                        <form action="/track" method="POST">
+
+                            <div class="form-group-custom">
+                                <label for="track-order-id" class="form-label">
+                                    Order ID
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="track-order-id"
+                                    name="order_id"
+                                    placeholder="Example: AT1A2B3C"
+                                    required>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="track-email" class="form-label">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    id="track-email"
+                                    name="email"
+                                    placeholder="example@mail.com"
+                                    required>
+                            </div>
+
+                            <button type="submit" class="btn btn-custom">
+                                Track My Order
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =========================
+         CONTACT US
+    ========================= -->
+
+    <div id="contact-section" class="app-section">
+
+        <section class="container">
+
+
+            <div class="row justify-content-center">
+
+                <div class="col-lg-7">
+
+
+                    <div class="text-center mb-5">
+
+                        <h2 class="section-title">
+                            Get In Touch
+                        </h2>
+
+                        <p class="text-muted-custom">
+
+                            कोई सवाल है? हमारी टीम से संपर्क करने के लिए
+                            नीचे दिया गया फॉर्म भरें.
+
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="custom-card">
+
+
+                        <form
+                            action="/contact"
+                            method="POST">
+
+
+                            <!-- FULL NAME -->
+
+                            <div class="form-group-custom">
+
+                                <label
+                                    for="name"
+                                    class="form-label">
+
+                                    Full Name
+
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    class="form-control small-input"
+                                    id="name"
+                                    name="name"
+                                    placeholder="अपना नाम लिखें"
+                                    required>
+
+                            </div>
+
+
+
+                            <!-- EMAIL -->
+
+                            <div class="form-group-custom">
+
+                                <label
+                                    for="email"
+                                    class="form-label">
+
+                                    Email Address
+
+                                </label>
+
+
+                                <input
+                                    type="email"
+                                    class="form-control small-input"
+                                    id="email"
+                                    name="email"
+                                    placeholder="example@mail.com"
+                                    required>
+
+                            </div>
+
+
+
+                            <!-- CONTACT NUMBER -->
+
+                            <div class="form-group-custom">
+
+                                <label
+                                    for="phone"
+                                    class="form-label">
+
+                                    Contact Number
+
+                                </label>
+
+
+                                <input
+                                    type="tel"
+                                    class="form-control small-input"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="अपना मोबाइल नंबर लिखें"
+                                    required>
+
+                            </div>
+
+
+
+                            <!-- MESSAGE -->
+
+                            <div class="form-group-custom">
+
+                                <label
+                                    for="message"
+                                    class="form-label">
+
+                                    Your Message
+
+                                </label>
+
+
+                                <textarea
+                                    class="form-control message-box"
+                                    id="message"
+                                    name="message"
+                                    placeholder="अपना message लिखें"
+                                    required></textarea>
+
+                            </div>
+
+
+
+                            <!-- SUBMIT -->
+
+                            <button
+                                type="submit"
+                                class="btn btn-custom">
+
+                                Submit
+
+                            </button>
+
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        /* =========================
+           SHOW SELECTED FILES
+        ========================= */
+
+        const fileInput =
+            document.getElementById("formFile");
+
+        const selectedFiles =
+            document.getElementById("selectedFiles");
+
+
+        if (fileInput && selectedFiles) {
+            fileInput.addEventListener("change", function () {
+
+            selectedFiles.innerHTML = "";
+
+
+            for (let i = 0; i < this.files.length; i++) {
+
+                const file =
+                    this.files[i];
+
+
+                const fileDiv =
+                    document.createElement("div");
+
+
+                fileDiv.className =
+                    "selected-file";
+
+
+                fileDiv.innerHTML =
+                    "📄 " + file.name;
+
+
+                selectedFiles.appendChild(fileDiv);
+
+            }
+
+            });
+        }
+
+    </script>
+
+
+
+    <!-- Bootstrap 5 JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>
