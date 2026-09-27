@@ -716,25 +716,27 @@ textarea:focus {
 
 
                 <!-- QR CODE -->
-             <div style="
+             <!-- QR CODE -->
+<div style="
     background:#ffffff;
     color:#000000;
-    padding:30px;
+    padding:20px;
     text-align:center;
     border-radius:10px;
     margin:20px 0;
-">
-    <strong>QR Code will be added here</strong>
+    box-sizing: border-box; "> <!-- box-sizing से पैडिंग बाहर नहीं भागती -->
+  
+    <!-- इमेज में max-width और height सेट कर दी है ताकि यह बाउंड्री के अंदर रहे -->
+    <img src="{{ url_for('static', filename='images/qr.png') }}" 
+         alt="Payment QR Code" 
+         class="qr-image" 
+         style="max-width: 100%; height: auto; width: 250px; display: block; margin: 0 auto 15px auto;">
+
+    <p class="payment-note" style="margin: 0; font-size: 14px; color: #555;">
+        Note: Scan this QR code to make the payment.
+    </p>
 </div>
 
-
-                <p class="payment-note">
-                    Note: Replace the QR image in
-                    static/images/qr.png
-                    with your own payment QR code.
-                </p>
-
-            </div>
 
 
             <!-- PAYMENT REFERENCE -->
