@@ -1,14 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
 import sqlite3
 import os
-import smtplib
 import secrets
-
+import resend
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
-from email.mime.text import MIMEText
-
-
 # =========================
 # BASIC SETUP
 # =========================
@@ -173,43 +169,46 @@ init_db()
 # EMAIL
 # =========================
 def send_email(subject, body, receiver=None):
-    sender = os.environ.get("SMTP_EMAIL")
-    app_password = os.environ.get("SMTP_APP_PASSWORD")
+    print("=== RESEND EMAIL FUNCTION CALLED ===")
 
-    if not sender or not app_password:
-        print("Email settings are not configured.")
+    api_key = os.environ.get("RESEND_API_KEY")
+
+    print("RESEND_API_KEY exists:", bool(api_key))
+
+    if not api_key:
+        print("RESEND_API_KEY is not configured.")
         return False
 
     if receiver is None:
-        receiver = sender
+        receiver = os.environ.get("SMTP_EMAIL")
+
+    print("Receiver configured:", bool(receiver))
+
+    if not receiver:
+        print("Email receiver is not configured.")
+        return False
 
     try:
-        with smtplib.SMTP_SSL(
-            "smtp.gmail.com",
-            465,
-            timeout=10
-        ) as server:
+        resend.api_key = api_key
 
-            server.login(sender, app_password)
+        params = {
+            "from": "Apna Typist <onboarding@resend.dev>",
+            "to": [receiver],
+            "subject": subject,
+            "text": body
+        }
 
-            msg = MIMEText(body, "plain", "utf-8")
-            msg["Subject"] = subject
-            msg["From"] = sender
-            msg["To"] = receiver
+        print("Calling Resend API...")
 
-            server.sendmail(
-                sender,
-                [receiver],
-                msg.as_string()
-            )
+        email = resend.Emails.send(params)
 
+        print("Resend response:", email)
         print("Email sent successfully.")
         return True
 
     except Exception as e:
-        print("Email sending failed:", e)
+        print("RESEND ERROR:", repr(e))
         return False
-
 
 # =========================
 # ORDER ID
