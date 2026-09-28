@@ -1096,9 +1096,9 @@ Deadline: {deadline or 'Not set'}
 # =========================
 # CONTACT FORM
 # =========================
-@app.route("/contact", methods=["GET", "POST"])  
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
-   
+
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
@@ -1109,27 +1109,32 @@ def contact():
             flash("Please fill the required fields.", "danger")
             return redirect(url_for("home") + "#contact-section")
 
- 
         conn = get_db()
+
         conn.execute(
             """
-            INSERT INTO contacts 
-            (name, email, phone, message) 
+            INSERT INTO contacts
+            (name, email, phone, message)
             VALUES (?, ?, ?, ?)
             """,
             (name, email, phone, message),
         )
-      conn.commit()
-conn.close()
 
-email_result = send_email(
-    "New Apna Typist Contact Form Entry",
-    f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
-)
+        conn.commit()
+        conn.close()
 
-print("CONTACT EMAIL RESULT:", email_result)
+        email_result = send_email(
+            "New Apna Typist Contact Form Entry",
+            f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
+        )
 
-flash("Your message has been submitted successfully.", "success")
+        print("CONTACT EMAIL RESULT:", email_result)
+
+        flash("Your message has been submitted successfully.", "success")
+
+        return redirect(url_for("home") + "#contact-section")
+
+    return render_template("contact.html")
 # =========================
 # ERROR HANDLERS
 # =========================
