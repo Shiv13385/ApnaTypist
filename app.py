@@ -37,6 +37,12 @@ app.config["SESSION_COOKIE_SECURE"] = os.environ.get(
 
 # Maximum upload size: 20 MB
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
+app.config["MAIL_SERVER"] = "://gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USE_SSL"] = False
+app.config["MAIL_USERNAME"] = os.environ.get("SMTP_EMAIL")
+app.config["MAIL_PASSWORD"] = os.environ.get("SMTP_PASSWORD")
 
 
 # =========================
@@ -166,39 +172,43 @@ init_db()
 # =========================
 # EMAIL
 # =========================
-
 def send_email(subject, body, receiver=None):
-
     sender = os.environ.get("SMTP_EMAIL")
-    password = os.environ.get("SMTP_APP_PASSWORD")
+    app_password = os.environ.get("SMTP_APP_PASSWORD")
 
-    if not sender or not password:
+    if not sender or not app_password:
         print("Email settings are not configured.")
-        return
+        return False
 
-    receiver = receiver or sender
-
-    msg = MIMEText(body)
-
-    msg["Subject"] = subject
-    msg["From"] = sender
-    msg["To"] = receiver
+    if receiver is None:
+        receiver = sender
 
     try:
+        with smtplib.SMTP_SSL(
+            "smtp.gmail.com",
+            465,
+            timeout=10
+        ) as server:
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender, app_password)
 
-            server.login(sender, password)
+            msg = MIMEText(body, "plain", "utf-8")
+            msg["Subject"] = subject
+            msg["From"] = sender
+            msg["To"] = receiver
 
             server.sendmail(
                 sender,
-                receiver,
+                [receiver],
                 msg.as_string()
             )
 
-    except Exception as e:
+        print("Email sent successfully.")
+        return True
 
+    except Exception as e:
         print("Email sending failed:", e)
+        return False
 
 
 # =========================
@@ -1087,81 +1097,41 @@ Deadline: {deadline or 'Not set'}
 # =========================
 # CONTACT FORM
 # =========================
-
-@app.route("/contact", methods=["POST"])
+@app.route("/contact", methods=["GET", "POST"])  
 def contact():
+   
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        message = request.form.get("message", "").strip()
 
-    name = request.form.get(
-        "name",
-        ""
-    ).strip()
+        if not name or not email or not message:
+            flash("Please fill the required fields.", "danger")
+            return redirect(url_for("home") + "#contact-section")
 
-    email = request.form.get(
-        "email",
-        ""
-    ).strip()
+ 
+        conn = get_db()
+        conn.execute(
+            """
+            INSERT INTO contacts 
+            (name, email, phone, message) 
+            VALUES (?, ?, ?, ?)
+            """,
+            (name, email, phone, message),
+        )
+        conn.commit()
+        conn.close()
 
-    phone = request.form.get(
-        "phone",
-        ""
-    ).strip()
-
-    message = request.form.get(
-        "message",
-        ""
-    ).strip()
-
-    if not name or not email or not message:
-
-        flash(
-            "Please fill the required fields.",
-            "danger"
+        send_email(
+            "New Apna Typist Contact Form Entry",
+            f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
         )
 
-        return redirect(
-            url_for("home") + "#contact-section"
-        )
+        flash("Your message has been submitted successfully.", "success")
+        return redirect(url_for("home") + "#contact-section")
 
-    conn = get_db()
-
-    conn.execute(
-        """
-        INSERT INTO contacts
-        (name, email, phone, message)
-        VALUES (?,?,?,?)
-        """,
-        (
-            name,
-            email,
-            phone,
-            message
-        )
-    )
-
-    conn.commit()
-    conn.close()
-
-    send_email(
-        "New Apna Typist Contact Form Entry",
-        f"""
-Name: {name}
-Email: {email}
-Phone: {phone}
-
-Message:
-{message}
-"""
-    )
-
-    flash(
-        "Your message has been submitted successfully.",
-        "success"
-    )
-
-    return redirect(
-        url_for("home") + "#contact-section"
-    )
-
+    return render_template("contact.html")
 
 # =========================
 # ERROR HANDLERS
