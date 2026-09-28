@@ -1119,19 +1119,17 @@ def contact():
             """,
             (name, email, phone, message),
         )
-        conn.commit()
-        conn.close()
+      conn.commit()
+conn.close()
 
-        send_email(
-            "New Apna Typist Contact Form Entry",
-            f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
-        )
+email_result = send_email(
+    "New Apna Typist Contact Form Entry",
+    f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
+)
 
-        flash("Your message has been submitted successfully.", "success")
-        return redirect(url_for("home") + "#contact-section")
+print("CONTACT EMAIL RESULT:", email_result)
 
-    return render_template("contact.html")
-
+flash("Your message has been submitted successfully.", "success")
 # =========================
 # ERROR HANDLERS
 # =========================
