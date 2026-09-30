@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 import os
 import secrets
-import resend
+import smtplib
+from email.message import EmailMessage
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 
@@ -35,7 +36,7 @@ app.config["SESSION_COOKIE_SECURE"] = os.environ.get(
 
 # Maximum upload size: 20 MB
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
-app.config["MAIL_SERVER"] = "://gmail.com"
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
@@ -170,46 +171,37 @@ init_db()
 # =========================
 # EMAIL
 # =========================
-def send_email(subject, body, receiver=None):
-    print("=== RESEND EMAIL FUNCTION CALLED ===")
+def send_email(subject, body, receiver):
+    smtp_email = os.environ.get("SMTP_EMAIL")
+    smtp_password = os.environ.get("SMTP_PASSWORD")
 
-    api_key = os.environ.get("RESEND_API_KEY")
-
-    print("RESEND_API_KEY exists:", bool(api_key))
-
-    if not api_key:
-        print("RESEND_API_KEY is not configured.")
+    if not smtp_email or not smtp_password:
+        app.logger.error("SMTP_EMAIL or SMTP_PASSWORD is missing")
         return False
-
-    if receiver is None:
-        receiver = os.environ.get("SMTP_EMAIL")
-
-    print("Receiver configured:", bool(receiver))
 
     if not receiver:
-        print("Email receiver is not configured.")
+        app.logger.error("Email receiver is missing")
         return False
 
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = f"Apna Typist <{smtp_email}>"
+    message["To"] = receiver
+    message.set_content(body)
+
     try:
-        resend.api_key = api_key
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(smtp_email, smtp_password)
+            server.send_message(message)
 
-        params = {
-            "from": "Apna Typist <onboarding@resend.dev>",
-            "to": [receiver],
-            "subject": subject,
-            "text": body
-        }
-
-        print("Calling Resend API...")
-
-        email = resend.Emails.send(params)
-
-        print("Resend response:", email)
-        print("Email sent successfully.")
+        app.logger.info("Email sent to %s", receiver)
         return True
 
-    except Exception as e:
-        print("RESEND ERROR:", repr(e))
+    except Exception:
+        app.logger.exception("Failed to send email to %s", receiver)
         return False
 
 # =========================
@@ -273,369 +265,111 @@ def upload():
     phone = request.form.get("phone", "").strip()
     work_type = request.form.get("work_type", "").strip()
     payment_reference = request.form.get("payment_reference", "").strip()
-
-    # Payment page se "documents" naam ka file field
-    files = [
-        f for f in request.files.getlist("documents")
-        if f and f.filename
-    ]
-
+    files = [f for f in request.files.getlist("documents") if f and f.filename]
     try:
         quantity = int(request.form.get("quantity", "0"))
-    except ValueError:
+    except (TypeError, ValueError):
         quantity = 0
 
-    # Basic validation
     if not name or not email or not phone or work_type not in SERVICE_RATES or not files:
-        flash(
-            "Please fill all details and select at least one file.",
-            "danger"
-        )
+        flash("Please fill all details and select at least one file.", "danger")
         return redirect(url_for("payment"))
-
     if quantity <= 0:
-        flash(
-            "Please enter a valid number of pages/sheets.",
-            "danger"
-        )
+        flash("Please enter a valid number of pages/sheets.", "danger")
         return redirect(url_for("payment"))
-
     if not payment_reference or len(payment_reference) < 6:
-        flash(
-            "Please enter your UTR / Transaction ID after payment.",
-            "danger"
-        )
+        flash("Please enter your UTR / Transaction ID after payment.", "danger")
         return redirect(url_for("payment"))
 
-    # Rate and total amount
+    invalid_files = [f.filename for f in files if not allowed_file(f.filename)]
+    if invalid_files:
+        flash("File type not allowed: " + ", ".join(invalid_files), "danger")
+        return redirect(url_for("payment"))
+
     rate = SERVICE_RATES[work_type]
     total = quantity * rate
-
-    # -----------------------------------------
-    # 1. Generate Order ID FIRST
-    # -----------------------------------------
     oid = generate_order_id()
-
-    # -----------------------------------------
-    # 2. Create separate folder for this order
-    # -----------------------------------------
     order_folder = os.path.join(UPLOAD_FOLDER, oid)
     os.makedirs(order_folder, exist_ok=True)
-
     saved = []
-
-    # -----------------------------------------
-    # 3. Save all files inside Order ID folder
-    # -----------------------------------------
-    for index, f in enumerate(files, start=1):
-
-        safe = secure_filename(f.filename)
-
-        if not safe:
-            continue
-
-        stem, ext = os.path.splitext(safe)
-
-        # First file:
-        # document.pdf
-        #
-        # Duplicate:
-        # document_1.pdf
-        # document_2.pdf
-        path = os.path.join(order_folder, safe)
-
-        n = 1
-
-        while os.path.exists(path):
-            safe = f"{stem}_{n}{ext}"
+    try:
+        for file in files:
+            safe = secure_filename(file.filename)
+            if not safe:
+                continue
+            stem, ext = os.path.splitext(safe)
             path = os.path.join(order_folder, safe)
-            n += 1
+            number = 1
+            while os.path.exists(path):
+                safe = f"{stem}_{number}{ext}"
+                path = os.path.join(order_folder, safe)
+                number += 1
+            file.save(path)
+            saved.append(f"{oid}/{safe}")
 
-        f.save(path)
+        if not saved:
+            flash("No valid file was uploaded.", "danger")
+            return redirect(url_for("payment"))
 
-        # Database me OrderID/filename save hoga
-        saved.append(f"{oid}/{safe}")
-
-    # -----------------------------------------
-    # 4. Check whether files were actually saved
-    # -----------------------------------------
-    if not saved:
-        # Empty folder remove karne ki koshish
+        conn = get_db()
         try:
-            os.rmdir(order_folder)
-        except OSError:
-            pass
-
-        flash(
-            "No valid file was uploaded.",
-            "danger"
-        )
+            conn.execute(
+                """INSERT INTO orders
+                (order_id, name, email, phone, work_type, file_names, quantity,
+                 rate, total_amount, payment_reference, payment_status, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (oid, name, email, phone, work_type, "\n".join(saved), quantity,
+                 rate, total, payment_reference, "Pending Verification", "Pending")
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception:
+        app.logger.exception("Could not save order %s", oid)
+        flash("Order could not be saved. Please try again or contact us.", "danger")
         return redirect(url_for("payment"))
 
-    # -----------------------------------------
-    # 5. Save order information in database
-    # -----------------------------------------
-    conn = get_db()
-
-    conn.execute(
-        """
-        INSERT INTO orders
-        (
-            order_id,
-            name,
-            email,
-            phone,
-            work_type,
-            file_names,
-            quantity,
-            rate,
-            total_amount,
-            payment_reference,
-            payment_status,
-            status
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            oid,
-            name,
-            email,
-            phone,
-            work_type,
-            "\n".join(saved),
-            quantity,
-            rate,
-            total,
-            payment_reference,
-            "Pending Verification",
-            "Pending"
-        )
-    )
-
-    conn.commit()
-    conn.close()
-
-    # -----------------------------------------
-    # 6. Send email to ADMIN
-    # -----------------------------------------
-    admin_email_result = send_email(
+    admin_sent = send_email(
         f"New Apna Typist Order - {oid}",
-        f"""
-A new order has been received.
-
+        f"""A new order has been received.
 Order ID: {oid}
-
 Name: {name}
-Email: {email}
+Customer email: {email}
 Phone: {phone}
-
 Work: {work_type}
 Quantity: {quantity}
 Rate: ₹{rate}
 Total: ₹{total}
-
-UTR / Transaction ID:
-{payment_reference}
-
-Uploaded Files:
-{chr(10).join(saved)}
-
-Payment Status: Pending Verification
-Order Status: Pending
-""",
+UTR / Transaction ID: {payment_reference}
+Uploaded files:
+{chr(10).join(saved)}""",
         receiver=os.environ.get("SMTP_EMAIL")
     )
-
-    print("ADMIN ORDER EMAIL RESULT:", admin_email_result)
-
-    # -----------------------------------------
-    # 7. Send confirmation email to CUSTOMER
-    # -----------------------------------------
-    customer_email_result = send_email(
+    customer_sent = send_email(
         f"Apna Typist - Order Received ({oid})",
-        f"""
-Hello {name},
+        f"""Hello {name},
 
 Thank you for placing your order with Apna Typist.
-
-Your order has been received successfully.
 
 Order ID: {oid}
 Service: {work_type}
 Quantity: {quantity}
 Rate: ₹{rate}
 Total Amount: ₹{total}
-
-UTR / Transaction ID:
-{payment_reference}
-
-Payment Status: Pending Verification
-Order Status: Pending
-
-Uploaded Files:
-{chr(10).join(saved)}
+Payment status: Pending Verification
 
 We will verify your payment and start processing your order.
 
-You can use your Order ID and email address on the Track Order page to check your order status.
-
 Thank you,
-Apna Typist
-""",
+Apna Typist""",
         receiver=email
     )
-
-    print("CUSTOMER ORDER EMAIL RESULT:", customer_email_result)
-
-    # -----------------------------------------
-    # 8. Show success page to customer
-    # -----------------------------------------
+    app.logger.info("Order email results: admin=%s customer=%s", admin_sent, customer_sent)
     return render_template(
-        "order_success.html",
-        order_id=oid,
-        name=name,
-        email=email,
-        work_type=work_type,
-        quantity=quantity,
-        rate=rate,
-        total_amount=total,
-        payment_reference=payment_reference
+        "order_success.html", order_id=oid, name=name, email=email,
+        work_type=work_type, quantity=quantity, rate=rate,
+        total_amount=total, payment_reference=payment_reference
     )
-
-    # =========================
-    # SAVE FILES
-    # =========================
-
-    for f in files:
-
-        if not allowed_file(f.filename):
-
-            flash(
-                f"File type not allowed: {f.filename}",
-                "danger"
-            )
-
-            return redirect(url_for("payment"))
-
-        safe = secure_filename(f.filename)
-
-        if not safe:
-            continue
-
-        stem, ext = os.path.splitext(safe)
-
-        path = os.path.join(
-            UPLOAD_FOLDER,
-            safe
-        )
-
-        number = 1
-
-        while os.path.exists(path):
-
-            safe = f"{stem}_{number}{ext}"
-
-            path = os.path.join(
-                UPLOAD_FOLDER,
-                safe
-            )
-
-            number += 1
-
-        f.save(path)
-
-        saved.append(safe)
-
-    if not saved:
-
-        flash(
-            "No valid file was uploaded.",
-            "danger"
-        )
-
-        return redirect(url_for("payment"))
-
-    # =========================
-    # CREATE ORDER
-    # =========================
-
-    oid = generate_order_id()
-
-    conn = get_db()
-
-    conn.execute(
-        """
-        INSERT INTO orders
-        (
-            order_id,
-            name,
-            email,
-            phone,
-            work_type,
-            file_names,
-            quantity,
-            rate,
-            total_amount,
-            payment_reference,
-            payment_status,
-            status
-        )
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-        """,
-        (
-            oid,
-            name,
-            email,
-            phone,
-            work_type,
-            "\n".join(saved),
-            quantity,
-            rate,
-            total,
-            payment_reference,
-            "Pending Verification",
-            "Pending",
-        )
-    )
-
-    conn.commit()
-    conn.close()
-
-    # =========================
-    # ADMIN EMAIL
-    # =========================
-
-    send_email(
-        f"New Apna Typist Order - {oid}",
-        f"""
-Order ID: {oid}
-Name: {name}
-Email: {email}
-Phone: {phone}
-Work: {work_type}
-Quantity: {quantity}
-Rate: ₹{rate}
-Total: ₹{total}
-UTR: {payment_reference}
-
-Payment Status: Pending Verification
-Order Status: Pending
-"""
-    )
-
-    return render_template(
-        "order_success.html",
-        order_id=oid,
-        name=name,
-        email=email,
-        work_type=work_type,
-        quantity=quantity,
-        rate=rate,
-        total_amount=total,
-        payment_reference=payment_reference
-    )
-
-
 # =========================
 # TRACK ORDER
 # =========================
@@ -1144,74 +878,52 @@ Deadline: {deadline or 'Not set'}
 # =========================
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
-
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
         phone = request.form.get("phone", "").strip()
         message = request.form.get("message", "").strip()
-
         if not name or not email or not message:
             flash("Please fill the required fields.", "danger")
             return redirect(url_for("home") + "#contact-section")
 
         conn = get_db()
+        try:
+            conn.execute(
+                "INSERT INTO contacts (name, email, phone, message) VALUES (?, ?, ?, ?)",
+                (name, email, phone, message)
+            )
+            conn.commit()
+        finally:
+            conn.close()
 
-        conn.execute(
-            """
-            INSERT INTO contacts
-            (name, email, phone, message)
-            VALUES (?, ?, ?, ?)
-            """,
-            (name, email, phone, message),
-        )
-
-        conn.commit()
-        conn.close()
-
-        # Send contact notification to ADMIN
-        admin_email_result = send_email(
+        admin_sent = send_email(
             "New Apna Typist Contact Form Entry",
             f"""A new contact form message has been received.
-
 Name: {name}
-Email: {email}
+Customer email: {email}
 Phone: {phone}
 
 Message:
-{message}
-""",
+{message}""",
             receiver=os.environ.get("SMTP_EMAIL")
         )
-
-        print("ADMIN CONTACT EMAIL RESULT:", admin_email_result)
-
-        # Send confirmation to CUSTOMER
-        customer_email_result = send_email(
+        customer_sent = send_email(
             "Apna Typist - Message Received",
             f"""Hello {name},
 
-Thank you for contacting Apna Typist.
-
-We have received your message successfully.
+Thank you for contacting Apna Typist. We have received your message and will get back to you soon.
 
 Your message:
 {message}
 
-Our team will review your message and get back to you soon.
-
 Thank you,
-Apna Typist
-""",
+Apna Typist""",
             receiver=email
         )
-
-        print("CUSTOMER CONTACT EMAIL RESULT:", customer_email_result)
-
+        app.logger.info("Contact email results: admin=%s customer=%s", admin_sent, customer_sent)
         flash("Your message has been submitted successfully.", "success")
-
         return redirect(url_for("home") + "#contact-section")
-
     return render_template("contact.html")
 # =========================
 # ERROR HANDLERS
