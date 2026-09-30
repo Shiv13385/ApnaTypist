@@ -5,6 +5,8 @@ import secrets
 import resend
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+
+
 # =========================
 # BASIC SETUP
 # =========================
@@ -352,7 +354,7 @@ def upload():
         f.save(path)
 
         # Database me OrderID/filename save hoga
-        saved.append(os.path.join(oid, safe))
+        saved.append(f"{oid}/{safe}")
 
     # -----------------------------------------
     # 4. Check whether files were actually saved
@@ -414,11 +416,13 @@ def upload():
     conn.close()
 
     # -----------------------------------------
-    # 6. Send admin email
+    # 6. Send email to ADMIN
     # -----------------------------------------
-    send_email(
+    admin_email_result = send_email(
         f"New Apna Typist Order - {oid}",
         f"""
+A new order has been received.
+
 Order ID: {oid}
 
 Name: {name}
@@ -438,11 +442,53 @@ Uploaded Files:
 
 Payment Status: Pending Verification
 Order Status: Pending
-"""
+""",
+        receiver=os.environ.get("SMTP_EMAIL")
     )
 
+    print("ADMIN ORDER EMAIL RESULT:", admin_email_result)
+
     # -----------------------------------------
-    # 7. Show success page to customer
+    # 7. Send confirmation email to CUSTOMER
+    # -----------------------------------------
+    customer_email_result = send_email(
+        f"Apna Typist - Order Received ({oid})",
+        f"""
+Hello {name},
+
+Thank you for placing your order with Apna Typist.
+
+Your order has been received successfully.
+
+Order ID: {oid}
+Service: {work_type}
+Quantity: {quantity}
+Rate: ₹{rate}
+Total Amount: ₹{total}
+
+UTR / Transaction ID:
+{payment_reference}
+
+Payment Status: Pending Verification
+Order Status: Pending
+
+Uploaded Files:
+{chr(10).join(saved)}
+
+We will verify your payment and start processing your order.
+
+You can use your Order ID and email address on the Track Order page to check your order status.
+
+Thank you,
+Apna Typist
+""",
+        receiver=email
+    )
+
+    print("CUSTOMER ORDER EMAIL RESULT:", customer_email_result)
+
+    # -----------------------------------------
+    # 8. Show success page to customer
     # -----------------------------------------
     return render_template(
         "order_success.html",
@@ -1123,12 +1169,44 @@ def contact():
         conn.commit()
         conn.close()
 
-        email_result = send_email(
+        # Send contact notification to ADMIN
+        admin_email_result = send_email(
             "New Apna Typist Contact Form Entry",
-            f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
+            f"""A new contact form message has been received.
+
+Name: {name}
+Email: {email}
+Phone: {phone}
+
+Message:
+{message}
+""",
+            receiver=os.environ.get("SMTP_EMAIL")
         )
 
-        print("CONTACT EMAIL RESULT:", email_result)
+        print("ADMIN CONTACT EMAIL RESULT:", admin_email_result)
+
+        # Send confirmation to CUSTOMER
+        customer_email_result = send_email(
+            "Apna Typist - Message Received",
+            f"""Hello {name},
+
+Thank you for contacting Apna Typist.
+
+We have received your message successfully.
+
+Your message:
+{message}
+
+Our team will review your message and get back to you soon.
+
+Thank you,
+Apna Typist
+""",
+            receiver=email
+        )
+
+        print("CUSTOMER CONTACT EMAIL RESULT:", customer_email_result)
 
         flash("Your message has been submitted successfully.", "success")
 
