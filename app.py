@@ -263,10 +263,10 @@ def send_email(subject, body, receiver):
         resend.api_key = api_key
 
         params = {
-            "from": "Apna Typist <onboarding@resend.dev>",
+            "from": "Apna Typist <admin@apnatypist.in>",
             "to": [receiver],
             "subject": subject,
-            "text": body,
+            "html": body,
         }
 
         print(
@@ -1607,6 +1607,7 @@ Message:
         )
 
 
+       
         # ==================================================
         # CUSTOMER CONFIRMATION EMAIL
         # ==================================================
@@ -1614,30 +1615,28 @@ Message:
         customer_email_result = send_email(
             "Apna Typist - Message Received",
             f"""
-Hello {name},
-
-Thank you for contacting Apna Typist.
-
-We have received your message successfully.
-
-Your message:
-
-{message}
-
-Our team will review your message and get back to you soon.
-
-Thank you,
-Apna Typist
-""",
+            <h2>Thank You, {name}!</h2>
+            <p>We have received your message successfully.</p>
+            <p><strong>Your Message:</strong></p>
+            <p>{message}</p>
+            <p>Our team will review your request and contact you soon.</p>
+            <hr>
+            <p>
+            Regards,<br>
+            <strong>Apna Typist</strong><br>
+            admin@apnatypist.in<br>
+            <a href="https://apnatypist.in">https://apnatypist.in</a>
+            </p>
+            """,
             receiver=email
         )
-
 
         print(
             "CUSTOMER CONTACT EMAIL RESULT:",
             customer_email_result
         )
 
+     
 
         # =========================
         # SUCCESS MESSAGE
